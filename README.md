@@ -1,5 +1,8 @@
 # qosf_task
 
+Environment Notes:
+Latest version of Qiskit and numpy
+
 
 ## Step 1 - Generate Circuits
 For this task, I will need to have a Tofolli circuit and the circuit from the task with the two U3 gates set with provided parameters.
