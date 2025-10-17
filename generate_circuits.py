@@ -1,5 +1,6 @@
-# This file will be used for the functions that will generate the Tofolli
-# circuit and also the task circuit with the parameterized U3 gates.
+"""This file will be used for the functions that will generate the Tofolli
+circuit and also the task circuit with the parameterized U3 gates."""
+
 from qiskit import QuantumCircuit
 
 
@@ -20,6 +21,7 @@ def generate_task_circuit(
 ) -> QuantumCircuit:
     """This returns a Qiskit circuit from task 1 with two
     U3 gates filled in with the appropriately passed in parameters
+    (Visually confirmed to be accurate in IBM Composer)
 
     Paramters:
         theta1, phi1, lambda1 - parameters for the first U3 gate
