@@ -1,14 +1,12 @@
 # qosf_task
 
-Environment Notes:
-Latest version of Qiskit and numpy
-
-
 ## Step 1 - Generate Circuits
 For this task, I will need to have a Tofolli circuit and the circuit from the task with the two U3 gates set with provided parameters.
 
 ## Step 2 - Test Equivalency
 The primary goal of the task is to find a decomposed circuit that matches the original Tofolli circuit. Therefore, it is critical to properly test equivalency.
+
+Note: From these tests it is determined that `unitaries_allclose()` is the only test that consider global phase. The `operator_equiv()` is the next best equivalency test, but it does not consider global phase. Finally, `statevector_equiv()` is the least useful equivalency test as it will have a number of false positives and does not incorporate global phase.
 
 ## Step 3 - Cost Function
 A cost function will be important to determine how close a circuit is to the ideal Tofolli circuit. This will allow the use of existing minimization functions to tune the parameters for the U3 gates.
