@@ -5,7 +5,7 @@ import pytest
 from qiskit import QuantumCircuit
 
 from equivalency import operator_equiv, state_vector_equiv, unitaries_allclose
-from generate_circuits import generate_tofolli
+from generate_circuits import generate_toffoli
 
 i_circuit = QuantumCircuit(1)
 i_circuit.id(0)
@@ -42,7 +42,7 @@ hxh_circuit.x(0)
 hxh_circuit.h(0)
 
 valid_equiv_tests = [
-    (generate_tofolli(), generate_tofolli(), True),
+    (generate_toffoli(), generate_toffoli(), True),
     (xx_circuit, i_circuit, True),
     (yy_circuit, i_circuit.copy(), True),
     (z_circuit, hxh_circuit, True),

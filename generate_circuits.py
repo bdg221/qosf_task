@@ -1,11 +1,11 @@
-"""This file will be used for the functions that will generate the Tofolli
+"""This file will be used for the functions that will generate the Toffoli
 circuit and also the task circuit with the parameterized U3 gates."""
 
 from qiskit import QuantumCircuit
 
 
-def generate_tofolli() -> QuantumCircuit:
-    """This returns a Qiskit circuit of a Tofolli gate"""
+def generate_toffoli() -> QuantumCircuit:
+    """This returns a Qiskit circuit of a Toffoli gate"""
     qc = QuantumCircuit(3)
     qc.ccx(0, 1, 2)
     return qc
