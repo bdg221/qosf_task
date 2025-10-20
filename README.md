@@ -19,4 +19,7 @@ Note: Ran into an interesting pytest and AerSimulator issue when using @pytest.m
 With the cost function in place, setup the parameter tuning to find the optimized parameters. I had planned to use scipy.optimize.minimize(), but Gemini recommended a global optimizer like scipy.optimize.differential_evolution. The global optimizer makes it less likely to get stuck in local minimums. 
 
 ## Step 5 - Check Optimized Parameters
-Check that the circuit with the optimized parameters is exactly equivalent. If so, try to change the parameters to be fractions of pi if possible. Save verified correct parameters for reporting.
+It is important to check that the circuit with the optimized parameters is exactly equivalent.
+
+## Step 6 - Clean Parameters (to fractions of pi)
+Most "standard" angles that are used with the U3 gate tend to be fractions of pi. Therefore, the [fractions.Fraction() method](https://docs.python.org/3/library/fractions.html) was used to find cleaner parameter values. These values were then tested a final time to verify equivalency.
