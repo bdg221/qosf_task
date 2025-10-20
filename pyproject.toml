@@ -8,5 +8,6 @@ dependencies = [
     "qiskit==2.2.1",
     "qiskit_aer==0.17.1",
     "numpy==2.3.4",
-    "pytest"
+    "pytest",
+    "ipykernel"
 ]
