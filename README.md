@@ -34,13 +34,13 @@ Update: Adjusting the scipy minimize's `method` parameters and tolerance allowed
 [task1.ipynb](./task1.ipynb)
 
 ## Step 5 - Clean Parameters (to fractions of pi)
-Most "standard" angles that are used with the U3 gate tend to be fractions of pi. Therefore, the [fractions.Fraction() method](https://docs.python.org/3/library/fractions.html) was used to find cleaner parameter values. These values were then tested a final time to verify equivalency.
+Most "standard" angles that are used with the U3 gate tend to be fractions of pi. Therefore, the [fractions.Fraction() method](https://docs.python.org/3/library/fractions.html) was used to find more easily readable parameter values.
 
 [task1.ipynb](./task1.ipynb)
 
 # Conclusion
 ## First Attempt
-In the final steps, I created [task1.ipynb](./task1.ipynb) that calls the optimization functions and show the results. The trace overlap (matrix fidelity) cost function worked well with `minimize` to provide the following answer:
+In the final steps, I created [task1.ipynb](./task1.ipynb) that calls the optimization functions and shows the results. The trace overlap (unitary matrix fidelity) cost function worked well with `minimize` to provide the following answer:
 Angles successfully found with trace_overlap_cost in 26.460007905960083 seconds!
 U3(-1/2 pi, -pi, 0)
 U3(0, -1/4 pi, 0)
@@ -61,11 +61,11 @@ U3(-1/2 pi, -pi, 0)
 U3(0, -2/11 pi, -1/15 pi)
 ```
 
-Putting these values into IBM Composer shows that the circuits are very close with the table for Frobenius norm ([screenshot](./images/Frobenius_norm.png)) showing 99.99985% accuracy with the expected probability for a Toffoli gate. The trace norm ([screenshot](./images/Trace_norm.png)) results show a very similar 99.99943% accuracy.
+Putting these values into IBM Composer shows that the circuits are very close with the table for Frobenius norm ([screenshot](./images/Frobenius_norm.png)) showing 99.99985% accuracy with the expected probability for a Toffoli gate. The trace norm ([screenshot](./images/Trace_norm.png)) results show a very similar 99.99943% accuracy with the expected probability.
 
 Clearly, this is a matter of tolerance and additional adjusting in the optimization function and cost function could refine these solutions even more.
 
-The `differential_evolution` optimizer did not seem to do well with the counts related cost function and took over 12 minutes. It never succesfuuly found the parameters for an equivalent Toffoli circuit, but putting the results into IBM Composer ([screenshot](./images/Count_comparison.png)), I see that it did reach 98.16148% accuracy.
+The `differential_evolution` optimizer did not seem to do well with the counts-related cost function and took over 12 minutes. It never succesfuuly found the parameters for an equivalent Toffoli circuit, but putting the results into IBM Composer ([screenshot](./images/Count_comparison.png)), I see that it did reach 98.16148% accuracy against the expected probabilities of the basis states.
 U3(-49/31 pi, -23/16 pi, 46/31 pi)
 U3(-pi, 16/11 pi, 4/23 pi)
 
