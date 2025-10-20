@@ -13,8 +13,10 @@ Note: From these tests it is determined that `unitaries_allclose()` is the only 
 A cost function will be important to determine how close a circuit is to the ideal Toffoli circuit. This will allow the use of existing minimization functions to tune the parameters for the U3 gates.
 From a search of cost function options for comparing unitary matrices, I found Frobenius Norm and Trace Norm which could both be run with [Numpy's norm functino](https://numpy.org/doc/stable/reference/generated/numpy.linalg.norm.html). Also, I used the shot equivalency found on the stackexchange answer above as another cost function.
 
+Note: Ran into an interesting pytest and AerSimulator issue when using @pytest.mark.parametrize. Due to the way pytest runs all of the tests at once, the AerSimulator frequently hits an error due to duplicate keys. I added a label and extracted the unitary matrix differently in the Frobenius Norm cost function to adjust for this.
+
 ## Step 4 - Parameter Tuning
-With the cost function in place, setup the parameter tuning to find the optimized parameters.
+With the cost function in place, setup the parameter tuning to find the optimized parameters. I had planned to use scipy.optimize.minimize(), but Gemini recommended a global optimizer like scipy.optimize.differential_evolution. The global optimizer makes it less likely to get stuck in local minimums. 
 
 ## Step 5 - Check Optimized Parameters
 Check that the circuit with the optimized parameters is exactly equivalent. If so, try to change the parameters to be fractions of pi if possible. Save verified correct parameters for reporting.
