@@ -1,20 +1,55 @@
 """This file is used for the cost functions associated with the project"""
 
-import numpy as np
-import copy
-from qiskit import QuantumCircuit, transpile
-from qiskit.result import Result
-from qiskit_aer import AerSimulator
 from itertools import product
+from typing import Union
 
-from generate_circuits import generate_toffoli
+import numpy as np
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import AerSimulator
+
+from generate_circuits import generate_task_circuit, generate_toffoli
 
 
-def frobenius_norm(circuit: QuantumCircuit) -> float:
+def trace_overlap_cost(params_or_circuit: Union[list[float], QuantumCircuit]) -> float:
+    """This uses trace overlap to determine the fidelity of a circuit and a Toffoli gate
+    Then the cost 1-fidelity)"""
+    if isinstance(params_or_circuit, QuantumCircuit):
+        circuit = params_or_circuit.copy()
+    else:
+        circuit = generate_task_circuit(*params_or_circuit)
+
+    toffoli_circuit = generate_toffoli().copy()
+
+    circuit.save_unitary(label="optimized_circuit")
+    toffoli_circuit.save_unitary(label="ideal_toffoli_circuit")
+
+    # Transpile for simulator
+    simulator_unitary = AerSimulator(method="unitary")
+    toffoli_circuit = transpile(
+        toffoli_circuit, simulator_unitary, optimization_level=0
+    )
+    circuit = transpile(circuit, simulator_unitary, optimization_level=0)
+
+    # Run and get unitary
+    result = simulator_unitary.run([toffoli_circuit, circuit]).result()
+    toffoli_unitary = result.data(toffoli_circuit)["ideal_toffoli_circuit"].data
+    unitary = result.data(circuit)["optimized_circuit"].data
+    fidelity = (
+        np.abs(np.trace(np.dot(np.conj(toffoli_unitary.T), unitary)))
+        / toffoli_unitary.shape[0]
+    )
+    return 1 - fidelity
+
+
+def frobenius_norm(params_or_circuit: Union[list[float], QuantumCircuit]) -> float:
     """This uses frobenius norm for calculating the cost"""
 
-    toffoli_circuit = generate_toffoli()
-    toffoli_circuit = copy.deepcopy(toffoli_circuit)
+    if isinstance(params_or_circuit, QuantumCircuit):
+        circuit = params_or_circuit.copy()
+    else:
+        circuit = generate_task_circuit(*params_or_circuit)
+
+    toffoli_circuit = generate_toffoli().copy()
 
     circuit.save_unitary(label="test_circuit")
     toffoli_circuit.save_unitary(label="ideal_circuit")
@@ -33,11 +68,15 @@ def frobenius_norm(circuit: QuantumCircuit) -> float:
     return np.linalg.norm(toffoli_unitary - unitary, "fro")
 
 
-def trace_norm(circuit: QuantumCircuit) -> float:
+def trace_norm(params_or_circuit: Union[list[float], QuantumCircuit]) -> float:
     """This uses trace norm for calculating the cost"""
 
-    toffoli_circuit = generate_toffoli()
-    toffoli_circuit = copy.deepcopy(toffoli_circuit)
+    if isinstance(params_or_circuit, QuantumCircuit):
+        circuit = params_or_circuit.copy()
+    else:
+        circuit = generate_task_circuit(*params_or_circuit)
+
+    toffoli_circuit = generate_toffoli().copy()
 
     circuit.save_unitary()
     toffoli_circuit.save_unitary()
@@ -58,9 +97,14 @@ def trace_norm(circuit: QuantumCircuit) -> float:
     )
 
 
-def count_comparison(circuit: QuantumCircuit) -> float:
+def count_comparison(params_or_circuit: Union[list[float], QuantumCircuit]) -> float:
     """This method simulates all possible inputs and compares the count results
     against the ideal Toffoli results. The number"""
+    if isinstance(params_or_circuit, QuantumCircuit):
+        circuit = params_or_circuit.copy()
+    else:
+        circuit = generate_task_circuit(*params_or_circuit)
+
     toffoli_counts = run_all_inputs(generate_toffoli())
     all_inputs_counts = run_all_inputs(circuit)
     total_cost = float(0)
