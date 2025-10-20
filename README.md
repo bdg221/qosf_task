@@ -39,7 +39,9 @@ Most "standard" angles that are used with the U3 gate tend to be fractions of pi
 [task1.ipynb](./task1.ipynb)
 
 # Conclusion
+## First Attempt
 In the final steps, I created [task1.ipynb](./task1.ipynb) that calls the optimization functions and show the results. The trace overlap (matrix fidelity) cost function worked well with `minimize` to provide the following answer:
+Angles successfully found with trace_overlap_cost in 26.460007905960083 seconds!
 U3(-1/2 pi, -pi, 0)
 U3(0, -1/4 pi, 0)
 
@@ -48,11 +50,13 @@ This was confirmed in IBM Composer ([screenshot](./images/Trace_overlap_cost.png
 Interestingly, the Frobenius norm and trace norm both gave results very close to the answer above.
 Frobenius norm:
 ```
+Angles successfully found with frobenius_norm in 95.35844302177429 seconds!
 U3(-1/2 pi, -pi, 0)
 U3(0, -2/11 pi, -2/29 pi)
 ```
 and trace norm:
 ```
+Angles successfully found with trace_norm in 85.04883122444153 seconds!
 U3(-1/2 pi, -pi, 0)
 U3(0, -2/11 pi, -1/15 pi)
 ```
@@ -65,4 +69,32 @@ The `differential_evolution` optimizer did not seem to do well with the counts r
 U3(-49/31 pi, -23/16 pi, 46/31 pi)
 U3(-pi, 16/11 pi, 4/23 pi)
 
+## Second Attempt
+The previous results provided by the different optimization functions all included a slight phase angle difference, seen in the IBM Composer screenshots. While these are passing the equivalency tests, I still wanted to at least try to address this. As I am not sure about manually manipulating the results to remove the phase differences, instead I decided to try to limit the bounds to be between zero and 2pi, instead of -2pi and 2pi. Using zero to 2pi should be sufficient because of the period should be 2pi. After making this slight change in [parameter_tuning](./parameter_tuning.py), I reran the different optimization functions in [task1.ipynb](./task1.ipynb) and received the following results.
+
+The attempt using the `trace_overlap_cost` function, was unable to find a successful set of parameters, though it came very close as can be seen by both the fidelity and the [Composer creenshot](./images/Trace_overlap_cost_new.png):
+The best angles found had a fidelity of 0.9999999999999951 were:
+U3(3/2 pi, pi, 2 pi)
+U3(0, 7/4 pi, 0)
+
+The Frobenius norm cost function successfully found a set of parameters that passed all of the equivalency tests. However, the [Composer secreenshot](./images/Frobenius_norm_new.png) still show phase angles that are not all zero like a Toffoli gate.
+Angles successfully found with frobenius_norm in 278.0414409637451 seconds!
+U3(1/2 pi, 0, pi)
+U3(0, 5/12 pi, 4/3 pi)
+
+The attempt using the trace norm cost function found parameters that were pretty close. However, the [Composer screenshot](./images/Trace_norm_new.png) shows a small phase angel still appear.
+The best angles found had a fidelity of 0.9690941253256485 were:
+U3(1/2 pi, 0, pi)
+U3(0, 0, 54/31 pi)
+
+Finally, the use of the count comparison was again slow and unsuccessful at finding parameters that result appropriate Toffoli decomposition. The fidelity was the worst and phase angles were present for the computational base states as seen in the [Composer screenshot](./images/Count_comparison_new.png).
+The best angles found had a fidelity of 0.911865234375 were:
+U3(7/13 pi, 13/12 pi, 0)
+U3(13/7 pi, 11/26 pi, 7/25 pi)
+
+## Final Thoughts
+It is very interesting that all of the times the parameters were successfully found, there was always a slight phase angle appearing in IBM Composer even though all equivalency tests passed. Also, I found it interesting that the `minimize` function consistely found parameters resulting in a high fidelity. Also, it was expected that the count comparison would be the most inefficient and least likely to be successful and both expectations proved true.
+
+
+# How to Duplicate Results
 To duplicate the results, perform a `git clone` of the repository. Navigate to the `qosf_task directory`. Make sure that `uv` is installed on the machine and run `uv sync`. Open the project in VS Code and open [task1.ipynb](task1.ipynb) selecting the virtual environment, `.venv`, (created during the `uv sync` command) as the Python interpretter. At this point, you should be able to run the notebook.
