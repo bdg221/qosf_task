@@ -1,4 +1,4 @@
-# qosf_task
+# QOSF Task 1
 Brian Goldsmith
 
 ## Step 1 - Generate Circuits
@@ -43,7 +43,7 @@ In the final steps, I created [task1.ipynb](./task1.ipynb) that calls the optimi
 U3(-1/2 pi, -pi, 0)
 U3(0, -1/4 pi, 0)
 
-This was confirmed in IBM Composer to be the correct parameters to create an accurate deomposition of a Toffoli gate..
+This was confirmed in IBM Composer ([screenshot](./images/Trace_overlap_cost.png)) to be the correct parameters to create an accurate deomposition of a Toffoli gate..
 
 Interestingly, the Frobenius norm and trace norm both gave results very close to the answer above.
 Frobenius norm:
@@ -57,10 +57,12 @@ U3(-1/2 pi, -pi, 0)
 U3(0, -2/11 pi, -1/15 pi)
 ```
 
-Putting these values into IBM Composer shows that the circuits are very close with the table for Frobenius norm showing 99.4736% accuracy with the expected probability for a Toffoli gate. The trace norm results show a very similar 99.45684% accuracy.
+Putting these values into IBM Composer shows that the circuits are very close with the table for Frobenius norm ([screenshot](./images/Frobenius_norm.png)) showing 99.99985% accuracy with the expected probability for a Toffoli gate. The trace norm ([screenshot](./images/Trace_norm.png)) results show a very similar 99.99943% accuracy.
 
-Clearly, this is a matter of tolerance and additional adjusting in the optimization function and cost function could refine these solutions.
+Clearly, this is a matter of tolerance and additional adjusting in the optimization function and cost function could refine these solutions even more.
 
-The `differential_evolution` optimizer did not seem to do well with the counts related cost function. It was not able to even come close to finding parameters to make an accurate decomposition of a Toffoli gate.
+The `differential_evolution` optimizer did not seem to do well with the counts related cost function and took over 12 minutes. It never succesfuuly found the parameters for an equivolent Toffoli circuit, but putting the results into IBM Composer ([screenshot](./images/Count_comparison.png)), I see that it did reach 98.16148% accuracy.
+U3(-49/31 pi, -23/16 pi, 46/31 pi)
+U3(-pi, 16/11 pi, 4/23 pi)
 
 To duplicate the results, perform a `git clone` of the repository. Navigate to the `qosf_task directory`. Make sure that `uv` is installed on the machine and run `uv sync`. Open the project in VS Code and open [task1.ipynb](task1.ipynb) selecting the virtual environment, `.venv`, (created during the `uv sync` command) as the Python interpretter. At this point, you should be able to run the notebook.
