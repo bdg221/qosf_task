@@ -12,7 +12,7 @@ For a more complete test, you could control a Hermitian permutation on a Toffoli
 That test would allow you to adjust an epsilon which should correlate to the cost.
 """
 
-from cost import frobenius_norm, trace_norm, count_comparison
+from cost import frobenius_norm, trace_norm, count_comparison, trace_overlap_cost
 
 import pytest
 from qiskit import QuantumCircuit
@@ -35,7 +35,9 @@ xxx_circuit.x(1)
 xxx_circuit.x(2)
 
 
-@pytest.mark.parametrize("cost_func", [count_comparison, trace_norm, frobenius_norm])
+@pytest.mark.parametrize(
+    "cost_func", [count_comparison, trace_overlap_cost, trace_norm, frobenius_norm]
+)
 def test_cost_functions(cost_func: callable):
     toffoli_cost = cost_func(toffoli_circuit)
     assert toffoli_cost == 0
