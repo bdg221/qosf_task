@@ -1,4 +1,5 @@
 # qosf_task
+Brian Goldsmith
 
 ## Step 1 - Generate Circuits
 For this task, I will need to have a Toffoli circuit and the circuit from the task with the two U3 gates set with provided parameters.
@@ -15,11 +16,18 @@ From a search of cost function options for comparing unitary matrices, I found F
 
 Note: Ran into an interesting pytest and AerSimulator issue when using @pytest.mark.parametrize. Due to the way pytest runs all of the tests at once, the AerSimulator frequently hits an error due to duplicate keys. I added a label and extracted the unitary matrix differently in the Frobenius Norm cost function to adjust for this.
 
+Update: After not being able to find a solution from the existing cost functions, I searched for other way to compare matrices and added trace overlap (1-matix fidelity)
+
 ## Step 4 - Parameter Tuning
-With the cost function in place, setup the parameter tuning to find the optimized parameters. I had planned to use scipy.optimize.minimize(), but Gemini recommended a global optimizer like scipy.optimize.differential_evolution. The global optimizer makes it less likely to get stuck in local minimums. 
+With the cost function in place, setup the parameter tuning to find the optimized parameters. I ended up using scipy.optimize.minimize() for the parameter optimization except for the optimization with the count comparison cost function. Gemini recommended a global optimizer like scipy.optimize.differential_evolution as the global optimizer makes it less likely to get stuck in local minimums. 
 
-## Step 5 - Check Optimized Parameters
-It is important to check that the circuit with the optimized parameters is exactly equivalent.
+Update: Adjusting the scipy minimize's `method` parameters and tolerance allowed the other non-count based optimizations to work properly.
 
-## Step 6 - Clean Parameters (to fractions of pi)
+## Step 5 - Clean Parameters (to fractions of pi)
 Most "standard" angles that are used with the U3 gate tend to be fractions of pi. Therefore, the [fractions.Fraction() method](https://docs.python.org/3/library/fractions.html) was used to find cleaner parameter values. These values were then tested a final time to verify equivalency.
+
+In the final steps, I created task1.ipynb that calls the optimization functions and show the results. The trace overlap (matrix fidelity) cost function worked well with minimize to provide the following answer:
+U3(-1/2 pi, -1 pi, 0 pi)
+U3(0 pi, -1/4 pi, 0 pi)
+
+This was confirmed in IBM Composer.
