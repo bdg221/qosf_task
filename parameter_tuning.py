@@ -7,7 +7,7 @@ from scipy.optimize import differential_evolution, minimize
 
 from cost import count_comparison, frobenius_norm, trace_norm, trace_overlap_cost
 
-bounds = [(-2 * np.pi, 2 * np.pi)] * 6
+bounds = [(0, 2 * np.pi)] * 6
 
 
 def optimize_angles_and_time_all() -> list[tuple[list[float], float], str]:
