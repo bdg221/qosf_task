@@ -3,7 +3,7 @@ Brian Goldsmith
 
 ## Step 1 - Generate Circuits
 For this task, I will need to have a Toffoli circuit and the circuit from the task with the two U3 gates set with provided parameters.
-[generate._circuits.py](./generate_circuits.py)
+[generate_circuits.py](./generate_circuits.py)
 
 ## Step 2 - Test Equivalency
 The primary goal of the task is to find a decomposed circuit that matches the original Toffoli circuit. Therefore, it is critical to properly test equivalency.
@@ -16,11 +16,11 @@ Note: From these tests it is determined that `unitaries_allclose()` is the only 
 
 ## Step 3 - Cost Function
 A cost function will be important to determine how close a circuit is to the ideal Toffoli circuit. This will allow the use of existing minimization functions to tune the parameters for the U3 gates.
-From a search of cost function options for comparing unitary matrices, I found Frobenius Norm and Trace Norm which could both be run with [Numpy's norm functino](https://numpy.org/doc/stable/reference/generated/numpy.linalg.norm.html). Also, I used the shot equivalency found on the stackexchange answer above as another cost function.
+From a search of cost function options for comparing unitary matrices, I found Frobenius Norm and Trace Norm which could both be run with [Numpy's norm function](https://numpy.org/doc/stable/reference/generated/numpy.linalg.norm.html). Also, I used the shot equivalency found on the stackexchange answer above as another cost function.
 
 Note: Ran into an interesting pytest and AerSimulator issue when using @pytest.mark.parametrize. Due to the way pytest runs all of the tests at once, the AerSimulator frequently hits an error due to duplicate keys. I added a label and extracted the unitary matrix differently in the Frobenius Norm cost function to adjust for this.
 
-Update: After not being able to find a solution from the existing cost functions, I searched for other way to compare matrices and added trace overlap (1-matix fidelity)
+Update: After not being able to find a solution from the existing cost functions, I searched for other way to compare matrices and added trace overlap (1-untiary matrix fidelity)
 
 [cost.py](./cost.py)
 [tests/test_cost.py](./tests/test_cost.py)
@@ -45,7 +45,7 @@ Angles successfully found with trace_overlap_cost in 26.460007905960083 seconds!
 U3(-1/2 pi, -pi, 0)
 U3(0, -1/4 pi, 0)
 
-This was confirmed in IBM Composer ([screenshot](./images/Trace_overlap_cost.png)) to be the correct parameters to create an accurate deomposition of a Toffoli gate..
+This was confirmed in IBM Composer ([screenshot](./images/Trace_overlap_cost.png)) to be the correct parameters to create an accurate decomposition of a Toffoli gate..
 
 Interestingly, the Frobenius norm and trace norm both gave results very close to the answer above.
 Frobenius norm:
@@ -65,14 +65,14 @@ Putting these values into IBM Composer shows that the circuits are very close wi
 
 Clearly, this is a matter of tolerance and additional adjusting in the optimization function and cost function could refine these solutions even more.
 
-The `differential_evolution` optimizer did not seem to do well with the counts related cost function and took over 12 minutes. It never succesfuuly found the parameters for an equivolent Toffoli circuit, but putting the results into IBM Composer ([screenshot](./images/Count_comparison.png)), I see that it did reach 98.16148% accuracy.
+The `differential_evolution` optimizer did not seem to do well with the counts related cost function and took over 12 minutes. It never succesfuuly found the parameters for an equivalent Toffoli circuit, but putting the results into IBM Composer ([screenshot](./images/Count_comparison.png)), I see that it did reach 98.16148% accuracy.
 U3(-49/31 pi, -23/16 pi, 46/31 pi)
 U3(-pi, 16/11 pi, 4/23 pi)
 
 ## Second Attempt
 The previous results provided by the different optimization functions all included a slight phase angle difference, seen in the IBM Composer screenshots. While these are passing the equivalency tests, I still wanted to at least try to address this. As I am not sure about manually manipulating the results to remove the phase differences, instead I decided to try to limit the bounds to be between zero and 2pi, instead of -2pi and 2pi. Using zero to 2pi should be sufficient because of the period should be 2pi. After making this slight change in [parameter_tuning](./parameter_tuning.py), I reran the different optimization functions in [task1.ipynb](./task1.ipynb) and received the following results.
 
-The attempt using the `trace_overlap_cost` function, was unable to find a successful set of parameters, though it came very close as can be seen by both the fidelity and the [Composer creenshot](./images/Trace_overlap_cost_new.png):
+The attempt using the `trace_overlap_cost` function, was unable to find a successful set of parameters, though it came very close as can be seen by both the fidelity and the [Composer screenshot](./images/Trace_overlap_cost_new.png):
 The best angles found had a fidelity of 0.9999999999999951 were:
 U3(3/2 pi, pi, 2 pi)
 U3(0, 7/4 pi, 0)
@@ -93,8 +93,8 @@ U3(7/13 pi, 13/12 pi, 0)
 U3(13/7 pi, 11/26 pi, 7/25 pi)
 
 ## Final Thoughts
-It is very interesting that all of the times the parameters were successfully found, there was always a slight phase angle appearing in IBM Composer even though all equivalency tests passed. Also, I found it interesting that the `minimize` function consistely found parameters resulting in a high fidelity. Also, it was expected that the count comparison would be the most inefficient and least likely to be successful and both expectations proved true.
+It is very interesting that all of the times the parameters were successfully found, there was always a slight phase angle appearing in IBM Composer even though all equivalency tests passed. Also, I found it interesting that the `minimize` function consistently found parameters resulting in a high unitary matrix fidelity. Also, it was expected that the count comparison would be the most inefficient and least likely to be successful and both expectations proved true.
 
 
 # How to Duplicate Results
-To duplicate the results, perform a `git clone` of the repository. Navigate to the `qosf_task directory`. Make sure that `uv` is installed on the machine and run `uv sync`. Open the project in VS Code and open [task1.ipynb](task1.ipynb) selecting the virtual environment, `.venv`, (created during the `uv sync` command) as the Python interpretter. At this point, you should be able to run the notebook.
+To duplicate the results, perform a `git clone` of the repository. Navigate to the `qosf_task directory`. Make sure that `uv` is installed on the machine and run `uv sync`. Open the project in VS Code and open [task1.ipynb](task1.ipynb) selecting the virtual environment, `.venv`, (created during the `uv sync` command) as the Python interpreter. At this point, you should be able to run the notebook.
