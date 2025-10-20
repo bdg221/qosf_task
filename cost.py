@@ -1,6 +1,7 @@
 """This file is used for the cost functions associated with the project"""
 
 import numpy as np
+import copy
 from qiskit import QuantumCircuit, transpile
 from qiskit.result import Result
 from qiskit_aer import AerSimulator
@@ -8,26 +9,27 @@ from itertools import product
 
 from generate_circuits import generate_toffoli
 
-simulator = AerSimulator()
-
 
 def frobenius_norm(circuit: QuantumCircuit) -> float:
     """This uses frobenius norm for calculating the cost"""
 
     toffoli_circuit = generate_toffoli()
+    toffoli_circuit = copy.deepcopy(toffoli_circuit)
 
-    circuit.save_unitary()
-    toffoli_circuit.save_unitary()
+    circuit.save_unitary(label="test_circuit")
+    toffoli_circuit.save_unitary(label="ideal_circuit")
 
     # Transpile for simulator
-    simulator = AerSimulator(method="unitary")
-    toffoli_circuit = transpile(toffoli_circuit, simulator, optimization_level=0)
-    circuit = transpile(circuit, simulator, optimization_level=0)
+    simulator_unitary = AerSimulator(method="unitary")
+    toffoli_circuit = transpile(
+        toffoli_circuit, simulator_unitary, optimization_level=0
+    )
+    circuit = transpile(circuit, simulator_unitary, optimization_level=0)
 
     # Run and get unitary
-    result = simulator.run([toffoli_circuit, circuit]).result()
-    toffoli_unitary = result.get_unitary(toffoli_circuit)
-    unitary = result.get_unitary(circuit)
+    result = simulator_unitary.run([toffoli_circuit, circuit]).result()
+    toffoli_unitary = result.data(toffoli_circuit)["ideal_circuit"].data
+    unitary = result.data(circuit)["test_circuit"].data
     return np.linalg.norm(toffoli_unitary - unitary, "fro")
 
 
@@ -35,17 +37,20 @@ def trace_norm(circuit: QuantumCircuit) -> float:
     """This uses trace norm for calculating the cost"""
 
     toffoli_circuit = generate_toffoli()
+    toffoli_circuit = copy.deepcopy(toffoli_circuit)
 
     circuit.save_unitary()
     toffoli_circuit.save_unitary()
 
     # Transpile for simulator
-    simulator = AerSimulator(method="unitary")
-    toffoli_circuit = transpile(toffoli_circuit, simulator, optimization_level=0)
-    circuit = transpile(circuit, simulator, optimization_level=0)
+    simulator_unitary2 = AerSimulator(method="unitary")
+    toffoli_circuit = transpile(
+        toffoli_circuit, simulator_unitary2, optimization_level=0
+    )
+    circuit = transpile(circuit, simulator_unitary2, optimization_level=0)
 
     # Run and get unitary
-    result = simulator.run([toffoli_circuit, circuit]).result()
+    result = simulator_unitary2.run([toffoli_circuit, circuit]).result()
     toffoli_unitary = result.get_unitary(toffoli_circuit)
     unitary = result.get_unitary(circuit)
     return 0.5 * np.linalg.norm(
@@ -76,6 +81,7 @@ def count_comparison(circuit: QuantumCircuit) -> float:
 def run_all_inputs(circuit: QuantumCircuit) -> dict:
     """This function runs the circuit with all possible inputs for 3 qubits. The results
     are returned as dictionary"""
+    simulator = AerSimulator()
     results = {}
     for input_vals in product([0, 1], repeat=3):
         temp_circuit = QuantumCircuit(3, 3)
@@ -84,10 +90,11 @@ def run_all_inputs(circuit: QuantumCircuit) -> dict:
                 temp_circuit.x(i)
         temp_circuit.append(circuit, [0, 1, 2])
         temp_circuit.measure_all(add_bits=False)
+        transpiled_temp_circuit = transpile(
+            temp_circuit, simulator, optimization_level=0
+        )
         counts = (
-            simulator.run(transpile(temp_circuit, simulator, optimization_level=0))
-            .result()
-            .get_counts()
+            simulator.run(transpiled_temp_circuit).result().get_counts(temp_circuit)
         )
         total = sum(counts.values())
         probabilities = {bits: count / total for bits, count in counts.items()}
